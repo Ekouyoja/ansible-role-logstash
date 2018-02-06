@@ -1,0 +1,54 @@
+cat <<-'EOF' >/etc/ansible/roles/logstash/tasks/logstash-instance.yml
+---
+- name: "Creation des dossiers d'instance"
+  file:
+    path: "{{ item }}"
+    state: directory
+    mode: 0775
+  loop:
+    - /etc/logstash
+    - /etc/logstash/instances
+    - /etc/logstash/instances/01-collect
+    - /etc/logstash/instances/01-collect/conf.d
+    - /etc/logstash/instances/02-analyse
+    - /etc/logstash/instances/02-analyse/conf.d
+    - /etc/logstash/instances/03-class
+    - /etc/logstash/instances/03-class/conf.d
+
+- name: "Copie des fichiers pour le service logstash-collect"
+  copy:
+    src: defaults/collect/{{ item }}
+    dest: /etc/logstash/instances/01-collect/{{ item }}
+    mode: 0644
+  loop:
+    - "logstash.yml"
+    - "log4j2.properties"
+    - "jvm.options"
+    
+- name: "Copie des fichiers pour le service logstash-analyse"
+  copy:
+    src: defaults/analyse/{{ item }}
+    dest: /etc/logstash/instances/02-analyse/{{ item }}
+    mode: 0644
+  loop:
+    - "logstash.yml"
+    - "log4j2.properties"
+    - "jvm.options"
+    
+- name: "Copie des fichiers pour le service logstash-class"
+  copy:
+    src: defaults/class/{{ item }}
+    dest: /etc/logstash/instances/03-class/{{ item }}
+    mode: 0644
+  loop:
+    - "logstash.yml"
+    - "log4j2.properties"
+    - "jvm.options"
+
+- name: "Enable des différentes instances"
+  systemd: name={{ item }} enabled=yes
+  loop:
+    - "logstash-collect"
+    - "logstash-analyse"
+    - "logstash-class"
+EOF

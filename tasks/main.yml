@@ -1,0 +1,25 @@
+---
+- name: "Installation de Logstash et dépendance JDK"
+  yum: name="{{item}}" state=latest
+  loop:
+    - "{{ java_package }}"
+    - "logstash"
+
+- name: "On supprime tous le contenu du /etc/logstash"
+  file:
+    path: /etc/logstash
+    state: absent
+
+- name: "Copie des fichiers de services des différentes instances logstash"
+  copy:
+    src: defaults/{{ item }}.service
+    dest: /usr/lib/systemd/system/{{ item }}.service
+  loop:
+    - "logstash-collect"
+    - "logstash-analyse"
+    - "logstash-class"
+
+- name: "Rechargement des daemons"
+  systemd: daemon_reload=yes
+  
+- import_tasks: logstash-instance.yml

@@ -1,0 +1,81 @@
+# Playbook install logstash avec les bonnes instances
+cat <<-'EOF' >/etc/ansible/create_role_logstash.yml
+---
+- hosts: localhost
+  become: yes
+  remote_user: ansible
+  vars:
+    - dossiers: [ defaults, handlers, meta, tasks, vars ]
+    - logstash: [ collect, analyse, class, patterns ]
+  vars_prompt:
+    - name: "role"
+      prompt: "Nom du role que vous voulez creer ?"
+  tasks: 
+   - name: création des répertoires
+     file: path=/etc/ansible/roles/{{ role }}/{{ item }} state=directory
+     loop: "{{ dossiers }}"
+     
+   - name: création d'autres répertoires pour Logstash
+     file: path=/etc/ansible/roles/{{ role }}/defaults/{{ item }} state=directory
+     loop: "{{ logstash }}"
+
+EOF
+
+sudo ansible-playbook /etc/ansible/create_role_logstash.yml
+logstash
+
+cat <<-'EOF' >/etc/ansible/roles/logstash/vars/main.yml
+---
+java_package:
+  - java-1.8.0-openjdk-headless
+
+EOF
+
+cat <<-'EOF' >/etc/ansible/roles/logstash/tasks/main.yml
+---
+- name: "Installation de Logstash et dépendance JDK"
+  yum: name="{{item}}" state=latest
+  loop:
+    - "{{ java_package }}"
+    - "logstash"
+
+- name: "On supprime tous le contenu du /etc/logstash"
+  file:
+    path: /etc/logstash
+    state: absent
+
+- name: "Copie des fichiers de services des différentes instances logstash"
+  copy:
+    src: defaults/{{ item }}.service
+    dest: /usr/lib/systemd/system/{{ item }}.service
+  loop:
+    - "logstash-collect"
+    - "logstash-analyse"
+    - "logstash-class"
+
+- name: "Rechargement des daemons"
+  systemd: daemon_reload=yes
+  
+- import_tasks: logstash-instance.yml
+
+EOF
+
+cat <<-'EOF' >/etc/ansible/roles/logstash/hosts
+[default]
+#exemple.crpc.fr
+
+EOF
+
+cat <<-'EOF' >/etc/ansible/roles/logstash/site.yml
+---
+- name: Install du role logstash
+  hosts: all
+  become: true
+  remote_user: root
+  roles: 
+     - { role: logstash, tags: [ 'logstash' ] }
+
+EOF
+
+export ANSIBLE_HOST_KEY_CHECKING=FALSE
+ansible-playbook /etc/ansible/roles/logstash/site.yml -i /etc/ansible/roles/logstash/hosts --limit 172.26.56.73 --ask-pass

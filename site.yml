@@ -1,0 +1,7 @@
+---
+- name: Install du role logstash
+  hosts: all
+  become: true
+  remote_user: root
+  roles: 
+     - { role: logstash, tags: [ 'logstash' ] }

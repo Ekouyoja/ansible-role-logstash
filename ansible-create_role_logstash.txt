@@ -1,0 +1,23 @@
+cat <<-'EOF' >/etc/ansible/create_role_logstash.yml
+---
+- hosts: localhost
+  become: yes
+  remote_user: ansible
+  vars:
+    - dossiers: [ defaults, handlers, meta, tasks, vars ]
+    - logstash: [ collect, analyse, class ]
+  vars_prompt:
+    - name: "role"
+      prompt: "Nom du role que vous voulez creer ?"
+  tasks: 
+   - name: création des répertoires
+     file: path=/etc/ansible/roles/{{ role }}/{{ item }} state=directory
+     loop: "{{ dossiers }}"
+     
+   - name: création d'autres répertoires pour Logstash
+     file: path=/etc/ansible/roles/{{ role }}/defaults/{{ item }} state=directory
+     loop: "{{ logstash }}"
+
+EOF
+
+sudo ansible-playbook /etc/ansible/create_role.yml
