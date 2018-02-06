@@ -5,6 +5,12 @@
     - "{{ java_package }}"
     - "logstash"
 
+- name: "On garde le fichier jvm.ptions par défaut pour nos futures instances"
+  copy:
+    src: /etc/logstash/jvm.options
+    dest: /tmp/jvm.options
+    remote_src: yes
+
 - name: "On supprime tous le contenu du /etc/logstash"
   file:
     path: /etc/logstash
