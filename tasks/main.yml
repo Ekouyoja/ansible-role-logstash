@@ -1,7 +1,7 @@
 ---
 - name: "Installation de Logstash et dépendance JDK"
   yum: name="{{item}}" state=latest
-  loop:
+  with_items:
     - "{{ java_package }}"
     - "logstash"
 
@@ -14,7 +14,7 @@
   copy:
     src: defaults/{{ item }}.service
     dest: /usr/lib/systemd/system/{{ item }}.service
-  loop:
+  with_items:
     - "logstash-collect"
     - "logstash-analyse"
     - "logstash-class"
