@@ -1,4 +1,9 @@
 ---
+- name: "Copie du dépôt logstash"
+  copy:
+    src: defaults/logstash.repo
+    dest: /etc/yum.repos.d/logstash.repo
+    
 - name: "Installation de Logstash et dépendance JDK"
   yum: name="{{item}}" state=latest
   with_items:
