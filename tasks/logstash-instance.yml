@@ -22,7 +22,6 @@
   with_items:
     - "logstash.yml"
     - "log4j2.properties"
-    - "jvm.options"
     
 - name: "Copie des fichiers pour le service logstash-analyse"
   copy:
@@ -32,7 +31,6 @@
   with_items:
     - "logstash.yml"
     - "log4j2.properties"
-    - "jvm.options"
     
 - name: "Copie des fichiers pour le service logstash-class"
   copy:
@@ -42,7 +40,15 @@
   with_items:
     - "logstash.yml"
     - "log4j2.properties"
-    - "jvm.options"
+
+- name: "Copie du jvm.options vers les instances"
+  copy:
+    src: /tmp/jvm.options
+    dest: /etc/logstash/instances/{{ item }}/
+  with_items:
+    - "01-collect"
+    - "02-analyse"
+    - "03-class"
 
 - name: "Enable des différentes instances"
   systemd: name={{ item }} enabled=yes
