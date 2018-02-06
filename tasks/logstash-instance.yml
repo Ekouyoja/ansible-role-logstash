@@ -4,7 +4,7 @@
     path: "{{ item }}"
     state: directory
     mode: 0775
-  loop:
+  with_items:
     - /etc/logstash
     - /etc/logstash/instances
     - /etc/logstash/instances/01-collect
@@ -19,7 +19,7 @@
     src: defaults/collect/{{ item }}
     dest: /etc/logstash/instances/01-collect/{{ item }}
     mode: 0644
-  loop:
+  with_items:
     - "logstash.yml"
     - "log4j2.properties"
     - "jvm.options"
@@ -29,7 +29,7 @@
     src: defaults/analyse/{{ item }}
     dest: /etc/logstash/instances/02-analyse/{{ item }}
     mode: 0644
-  loop:
+  with_items:
     - "logstash.yml"
     - "log4j2.properties"
     - "jvm.options"
@@ -39,14 +39,14 @@
     src: defaults/class/{{ item }}
     dest: /etc/logstash/instances/03-class/{{ item }}
     mode: 0644
-  loop:
+  with_items:
     - "logstash.yml"
     - "log4j2.properties"
     - "jvm.options"
 
 - name: "Enable des différentes instances"
   systemd: name={{ item }} enabled=yes
-  loop:
+  with_items:
     - "logstash-collect"
     - "logstash-analyse"
     - "logstash-class"
