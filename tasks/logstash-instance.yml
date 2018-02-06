@@ -45,6 +45,7 @@
   copy:
     src: /tmp/jvm.options
     dest: /etc/logstash/instances/{{ item }}/
+    remote_src: yes
   with_items:
     - "01-collect"
     - "02-analyse"
