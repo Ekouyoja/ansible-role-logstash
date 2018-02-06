@@ -1,4 +1,3 @@
-cat <<-'EOF' >/etc/ansible/roles/logstash/tasks/logstash-instance.yml
 ---
 - name: "Creation des dossiers d'instance"
   file:
@@ -51,4 +50,3 @@ cat <<-'EOF' >/etc/ansible/roles/logstash/tasks/logstash-instance.yml
     - "logstash-collect"
     - "logstash-analyse"
     - "logstash-class"
-EOF
